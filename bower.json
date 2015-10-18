@@ -1,0 +1,14 @@
+{
+  "name": "hyper-island-visualisation",
+  "version": "0.0.0",
+  "authors": [
+    "davey <davey@dpwoert.com>"
+  ],
+  "main": "main.js",
+  "license": "MIT",
+  "private": true,
+  "dependencies": {
+    "threejs": "*",
+    "d3": "~3.5.6"
+  }
+}
