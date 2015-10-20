@@ -1,8 +1,8 @@
 var createPerson = function(data){
 
 	//create THREE object
-	var geometry = new THREE.SphereGeometry( 1, 32, 32 );
-	var material = new THREE.MeshBasicMaterial( {color: 0xff0000} );
+	var geometry = new THREE.IcosahedronGeometry( 1, 2 );
+	var material = new THREE.MeshBasicMaterial({ color: 0xff0000 });
 	var mesh = new THREE.Mesh( geometry, material );
 
 	return {
@@ -11,57 +11,62 @@ var createPerson = function(data){
 	};
 };
 
-var startParticles = function(){
+var World = function(){
 
 	var width = window.innerWidth;
 	var height = window.innerHeight;
 
-	var renderer = new THREE.WebGLRenderer( { antialias: true } );
-	renderer.setClearColor( 0x000000, 1 );
-	renderer.setSize(width, height);
+	this.renderer = new THREE.WebGLRenderer( { antialias: true } );
+	this.renderer.setClearColor( 0x000000, 1 );
+	this.renderer.setSize(width, height);
 
 	//add DOM element
 	var canvas = document.getElementById('canvas');
-	canvas.appendChild( renderer.domElement );
+	canvas.appendChild( this.renderer.domElement );
 
 	//setup scene
-	var scene = new THREE.Scene();
-	camera = new THREE.PerspectiveCamera( 50, window.innerWidth / window.innerHeight, 1, 1000 );
+	this.scene = new THREE.Scene();
+	this.camera = new THREE.PerspectiveCamera( 50, window.innerWidth / window.innerHeight, 1, 1000 );
+	this.camera.position.setZ(-75);
 
 	//render manager to add abbility to play and add FX
-	var renderManager = new THREE.renderPipeline(renderer);
+	this.renderManager = new THREE.renderPipeline(this.renderer);
 
 	//tilt shift effect
 	var tiltV = new THREE.ShaderStep(width, height);
 	var tiltH = new THREE.ShaderStep(width, height);
 	var copy = new THREE.ShaderStep(width, height);
 
-	var pos = 0.5;
+	var pos = 0.3;
+	var blur = 50;
+	var spread = 30;
 
 	tiltV
 		.pipe()
+		.setting('v', 'f', blur / height)
+		.setting('r', 'f', pos)
+		.setting('spread', 'f', spread)
 		.shader('vertex', THREE.HorizontalTiltShiftShader.vertexShader)
 		.shader('fragment', THREE.HorizontalTiltShiftShader.fragmentShader)
-		.setting('v', 'f', 1 / height)
-		.setting('r', 'f', pos)
-		.setting('spread', 'f', 10)
 
 	tiltH
 		.pipe()
+		.setting('h', 'f', blur / width)
+		.setting('r', 'f', pos)
+		.setting('spread', 'f', spread)
 		.shader('vertex', THREE.VerticalTiltShiftShader.vertexShader)
 		.shader('fragment', THREE.VerticalTiltShiftShader.fragmentShader)
-		.setting('h', 'f', 1 / width)
-		.setting('r', 'f', pos)
-		.setting('spread', 'f', 10)
 
 	copy
 		.pipe()
 		.shader('vertex', THREE.CopyShader.vertexShader)
 		.shader('fragment', THREE.CopyShader.fragmentShader)
-		.renderToScreen();
+		.renderToScreen(true);
 
 	//create list of all persons
-	var persons = [];
+	this.persons = [];
+
+	var self = this;
 
 	//load data
 	d3
@@ -73,35 +78,63 @@ var startParticles = function(){
 		})
     	.get(function(error, rows) {
 
+			self.questions = rows[0];
+
 			for( var i = 0 ; i < rows.length ; i++ ){
 
 				var person = rows[i];
 
-				if(person.lat && person.lon){
-					persons.push( createPerson(person) );
+				if(person.lat && person.lon && !isNaN(person.lat)){
+					self.persons.push( createPerson(person) );
 				}
 
 			}
 
 			//load first story
-			scene = stories[0](persons, camera, renderManager, renderer);
+			story = stories[0](self);
+			self.prevStory = 0;
 
 			//create renderpass
-			var renderPass = new THREE.RenderStep(width, height, scene, camera);
+			var renderPass = new THREE.RenderStep(width, height, story.scene, self.camera);
+
+			var current = 0;
+
+			//load next story on spacebar
+			document.body.onkeyup = function(e){
+
+				if(e.keyCode == 32){
+
+
+					story.delete();
+					story = stories[1](self, current);
+					self.prevStory = 1;
+
+					renderPass.replace(story.scene, self.camera);
+
+					current++;
+
+					if(current > 71){
+						current = 0;
+					}
+
+				}
+
+			};
 
 			//make pipeline
-			renderManager
-				// .pipe('init', function(){
-				// 	renderer.render( scene, camera );
-				// })
+			self.renderManager
 				.pipe('main', renderPass)
-				.pipe('tilt-v', tiltV)
 				.pipe('tilt-h', tiltH)
+				.pipe('tilt-v', tiltV)
 				.pipe('copy', copy)
 				.start();
 
 		});
 
+};
+
+var startParticles = function(){
+	new World();
 };
 
 document.addEventListener("DOMContentLoaded", startParticles);

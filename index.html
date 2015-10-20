@@ -6,9 +6,10 @@
 		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
 		<link rel="stylesheet" type="text/css" href="style.css"></link>
 
-		<!-- THREE & D3-->
+		<!-- Bower dependencies -->
 		<script src="bower_components/d3/d3.js"></script>
 		<script src="bower_components/threejs/build/three.min.js"></script>
+		<script src="bower_components/shifty/dist/shifty.min.js"></script>
 
 		<!-- shaders -->
 		<script src="shaders/tilt-shift-vertical.js"></script>
@@ -16,6 +17,7 @@
 		<script src="shaders/copy.js"></script>
 
 		<!-- render pipeline library -->
+		<script src="lib/rotate-controls.js"></script>
 		<script src="lib/orbit-controls.js"></script>
 		<script src="lib/trackball-controls.js"></script>
 		<script src="lib/render-pipeline.js"></script>
@@ -24,6 +26,7 @@
 
 		<!-- stories -->
 		<script src="stories/0-map.js"></script>
+		<script src="stories/1-interests.js"></script>
 
 		<!-- run script -->
 		<script src="main.js"></script>
@@ -35,6 +38,7 @@
 
 	<body>
 
+		<div id="question"></div>
 		<div id="canvas"></div>
 
 	</body>

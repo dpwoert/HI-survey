@@ -8,7 +8,8 @@
   "license": "MIT",
   "private": true,
   "dependencies": {
-    "threejs": "*",
-    "d3": "~3.5.6"
+    "threejs": "r73",
+    "d3": "~3.5.6",
+	"shifty": "~1.5.0"
   }
 }

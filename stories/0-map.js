@@ -32,7 +32,7 @@ var createTexture = function(){
 	_context.canvas.height = 32;
 
 	//draw circle
-	_context.fillStyle = 'rgba(250,250,250,0.3)';
+	_context.fillStyle = 'rgba(165,165,175,0.3)';
 	_context.beginPath();
 	_context.arc(16,16,12,0,2*Math.PI);
 	_context.fill();
@@ -74,7 +74,7 @@ var createLabel = function(text){
 
 	// text
 	context.fillStyle = "white";
-	context.fillText( text, left + paddingLeft, canvas.height/2);
+	context.fillText( text, left + paddingLeft, canvas.height/2 + paddingTop);
 
 	// canvas contents will be used for a texture
 	var texture = new THREE.Texture(canvas)
@@ -93,15 +93,16 @@ var createLabel = function(text){
 
 };
 
-stories[0] = function(persons, camera, renderManager, renderer){
+stories[0] = function(world){
 
 	var worldSize = 25;
 
-	//create scene
+	//create camera and scene
 	var scene = new THREE.Scene();
+	var camera = world.camera.clone();
 
 	//center
-	var center = new THREE.Vector3(0,0,-100);
+	var center = new THREE.Vector3(0,0,-200);
 
 	//logo
 	var loader = new THREE.TextureLoader();
@@ -128,11 +129,8 @@ stories[0] = function(persons, camera, renderManager, renderer){
 		}
 	);
 
-	var light = new THREE.HemisphereLight( 0xffffbb, 0x080820, 1 );
-	scene.add( light );
-
 	//do appropiate action for all persons
-	persons.forEach(function(person){
+	world.persons.forEach(function(person){
 
 		var data = person.data;
 
@@ -141,7 +139,7 @@ stories[0] = function(persons, camera, renderManager, renderer){
 		person.object.position.copy(position);
 
 		//create label
-		var position = degreeToVec3(data.lat, data.lon, worldSize + 2, worldSize);
+		var position = degreeToVec3(data.lat, data.lon, worldSize + 3, worldSize);
 		person.label = createLabel(data.name);
 		person.label.position.copy(position);
 
@@ -149,6 +147,8 @@ stories[0] = function(persons, camera, renderManager, renderer){
 		scene.add(person.label);
 
 	});
+
+	var cloud;
 
 	//road airports
 	d3
@@ -168,7 +168,7 @@ stories[0] = function(persons, camera, renderManager, renderer){
 			for (var i = 0 ; i < rows.length; i++){
 
 					var airport = rows[i];
-					var position = degreeToVec3( airport.latitude, airport.longitude, worldSize, worldSize );
+					var position = degreeToVec3( airport.latitude, airport.longitude, worldSize - Math.random(), worldSize );
 					// position.add(center);
 
 					pos[3 * i]   = position.x;
@@ -180,7 +180,7 @@ stories[0] = function(persons, camera, renderManager, renderer){
 
 			//create material
 			var pointMaterial = new THREE.PointsMaterial({
-				'color': new THREE.Color(0.5,0.5,0.5),
+				// 'color': new THREE.Color(0.5,0.5,0.5),
 				'size': 0.5,
 				'sizeAttenuation': true,
 				'map': createTexture()
@@ -190,25 +190,63 @@ stories[0] = function(persons, camera, renderManager, renderer){
 			pointMaterial.alphaTest = 0.1;
 
 			//create 3d object for cloud
-			var cloud = new THREE.Points(geometry, pointMaterial);
+			cloud = new THREE.Points(geometry, pointMaterial);
 			cloud.frustumCulled = false;
 			scene.add(cloud);
 
-
 		});
 
-	controls = new THREE.TrackballControls( camera, renderer.domElement );
-	// controls.enableDamping = true;
-	// controls.staticMoving = true;
+	controls = new THREE.OrbitControls( world.camera, world.renderer.domElement );
+	controls.enableDamping = true;
+	controls.dampingFactor = 0.2;
+	controls.rotateSpeed = 0.2;
+	controls.autoRotate = true;
+	controls.autoRotateSpeed = -0.1;
 	controls.target.copy(center);
+
+	// camera.position.z = 100;
 
 	scene.position.copy(center);
 	scene.rotation.x -= Math.PI/2;
 	scene.rotation.y = Math.PI/6;
 
-	renderManager
-		.pipe('controls', controls.update.bind(controls));
+	world.renderManager
+		.pipe('controls-0', controls.update.bind(controls));
 
-	return scene;
+	//on delete
+	return{
+
+		scene: scene,
+		delete: function(){
+
+			//remove elements from scene
+			scene.remove(cloud);
+
+			//remove controls
+			world.renderManager.remove('controls-0');
+
+			//transfer position of persons to world pos
+			world.persons.map(function(person){
+
+				var pos = person.object.position.clone();
+				person.object._prevPos = scene.localToWorld(pos);
+
+			});
+
+			//clear memory
+			controls.dispose();
+			cloud.geometry.dispose();
+			cloud.material.dispose();
+
+			// world.camera = camera;
+
+			cloud = undefined;
+			scene = undefined;
+			// camera = undefined;
+			controls = undefined;
+
+		}
+
+	};
 
 };

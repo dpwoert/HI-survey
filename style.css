@@ -18,3 +18,20 @@ html, body{
 	height: 100%;
 
 }
+
+#question{
+	position: absolute;
+	top: 35px;
+	left: 100px;
+	right: 100px;
+	text-align: center;
+
+	font-weight: 700;
+	font-family: 'helvetica';
+	font-size: 1.3em;
+
+	color: white;
+
+	z-index: 2;
+
+}
