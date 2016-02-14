@@ -70,10 +70,14 @@ var World = function(){
 
 	//load data
 	d3
-		.csv('data/hyper.csv')
+		.csv('data/hyper-data-2.csv')
 		.row(function(d) {
 			d.lat = parseFloat(d.lat);
 			d.lon = parseFloat(d.lon);
+
+			d.lat = isNaN(d.lat) || d.lat === 0 ? 53.480759 : d.lat;
+			d.lon = isNaN(d.lon) || d.lon === 0 ? -2.242631 : d.lon;
+
 			return d;
 		})
     	.get(function(error, rows) {
@@ -84,8 +88,10 @@ var World = function(){
 
 				var person = rows[i];
 
-				if(person.lat && person.lon && !isNaN(person.lat)){
+				if(person.lat && person.lon){
 					self.persons.push( createPerson(person) );
+				} else {
+					console.log(person);
 				}
 
 			}
@@ -102,7 +108,7 @@ var World = function(){
 			//load next story on spacebar
 			document.body.onkeyup = function(e){
 
-				if(e.keyCode == 32){
+				if(e.keyCode === 32 || e.keyCode === 39){
 
 
 					story.delete();

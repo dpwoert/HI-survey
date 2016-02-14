@@ -88,11 +88,19 @@ var matchOrder = [
 
 var duplicateList = {};
 
-var lineMaterial = new THREE.LineBasicMaterial({
-	color: 0xffffff,
-	linewidth: 3,
-	opacity: 0.6,
-	// transparent: true
+// var lineMaterial = new THREE.LineBasicMaterial({
+// 	color: 0xffffff,
+// 	linewidth: 3,
+// 	opacity: 0.7,
+// 	transparent: true
+// });
+
+var lineMaterial = new THREE.MeshLineMaterial({
+	color: new THREE.Color(1,1,1),
+	lineWidth: 0.02,
+	opacity: 0.2,
+	transparent: true,
+	resolution: new THREE.Vector2( window.innerWidth, window.innerHeight )
 });
 
 var createLink = function(from, to, world, width){
@@ -124,7 +132,11 @@ var createLink = function(from, to, world, width){
 		material.linewidth = width;
 	}
 
-	return new THREE.Line(geometry, material);
+	//create line
+	var line = new THREE.MeshLine();
+	line.setGeometry( geometry );
+
+	return new THREE.Mesh( line.geometry, material );;
 
 }
 
