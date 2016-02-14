@@ -138,7 +138,7 @@ var createLink = function(from, to, world, width){
 
 	return new THREE.Mesh( line.geometry, material );;
 
-}
+};
 
 var findMatches = function(step, person, world, scene){
 
@@ -178,7 +178,7 @@ var findMatches = function(step, person, world, scene){
 	var question = document.getElementById('question')
 	question.innerText = world.questions[toUse];
 
-}
+};
 
 stories[1] = function(world, step){
 

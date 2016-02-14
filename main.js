@@ -88,10 +88,8 @@ var World = function(){
 
 				var person = rows[i];
 
-				if(person.lat && person.lon){
+				if(person.lat && person.lon && i > 2){
 					self.persons.push( createPerson(person) );
-				} else {
-					console.log(person);
 				}
 
 			}
