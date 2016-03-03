@@ -197,6 +197,9 @@ stories[1] = function(world, step){
 	right = new THREE.Vector3(0.8, 0.7, 0.5);
 	right = right.unproject( world.camera );
 
+	var centerPoint = new THREE.Vector3(0.0, 0.7, 0.5);
+	centerPoint = centerPoint.unproject( world.camera );
+
 	var bottomLeft = new THREE.Vector3(-0.8,-1.2, 0.5);
 	bottomLeft = bottomLeft.unproject( world.camera );
 
@@ -229,11 +232,13 @@ stories[1] = function(world, step){
 				easing: 'easeOutQuint',
 				step: function (state) {
 					person.object.position.set(state.x, state.y, state.z);
-					person.label.position.set(state.x, state.y - 0.2, state.z + 0.1);
+					person.label.position.set(state.x, state.y - 0.1, state.z + 0.1);
 				},
 				finish: function () {
 
 					// console.log('finished', person.object);
+					var finalPoint = centerPoint.clone().lerp(toPos, 1.06);
+					person.label.position.copy(finalPoint);
 
 				}
 

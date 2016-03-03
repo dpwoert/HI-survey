@@ -1,8 +1,10 @@
 var createPerson = function(data){
 
+	debugger
+
 	//create THREE object
 	var geometry = new THREE.IcosahedronGeometry( 1, 2 );
-	var material = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+	var material = new THREE.MeshBasicMaterial({ color: data.program === 'DMM' ? 0xff0000 : 0x3c5682 });
 	var mesh = new THREE.Mesh( geometry, material );
 
 	return {
@@ -38,22 +40,22 @@ var World = function(){
 	var copy = new THREE.ShaderStep(width, height);
 
 	var pos = 0.3;
-	var blur = 50;
+	var blur = 500;
 	var spread = 30;
 
 	tiltV
 		.pipe()
-		.setting('v', 'f', blur / height)
-		.setting('r', 'f', pos)
-		.setting('spread', 'f', spread)
+		.setting('v', 'f', 0.2)
+		.setting('r', 'f', 0.5)
+		.setting('spread', 'f', 1.4)
 		.shader('vertex', THREE.HorizontalTiltShiftShader.vertexShader)
 		.shader('fragment', THREE.HorizontalTiltShiftShader.fragmentShader)
 
 	tiltH
 		.pipe()
-		.setting('h', 'f', blur / width)
-		.setting('r', 'f', pos)
-		.setting('spread', 'f', spread)
+		.setting('h', 'f', 0.2)
+		.setting('r', 'f', 0.5)
+		.setting('spread', 'f', 1.4)
 		.shader('vertex', THREE.VerticalTiltShiftShader.vertexShader)
 		.shader('fragment', THREE.VerticalTiltShiftShader.fragmentShader)
 
@@ -70,7 +72,7 @@ var World = function(){
 
 	//load data
 	d3
-		.csv('data/hyper-data-2.csv')
+		.csv('data/hyper-data-3.csv')
 		.row(function(d) {
 			d.lat = parseFloat(d.lat);
 			d.lon = parseFloat(d.lon);

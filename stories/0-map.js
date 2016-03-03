@@ -140,7 +140,7 @@ stories[0] = function(world){
 
 		//create label
 		var position = degreeToVec3(data.lat, data.lon, worldSize + 3, worldSize);
-		person.label = createLabel(data.name);
+		person.label = createLabel(data.name.split(" ")[0]);
 		person.label.position.copy(position);
 
 		scene.add(person.object);
